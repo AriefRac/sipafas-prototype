@@ -1,0 +1,148 @@
+/* Font Inter disimpan sendiri (tanpa Google Fonts): satu file variabel, hanya huruf Latin. */
+@font-face {
+  font-family: 'Inter Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== Token warna ===== */
+:root {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #f7f6fb;
+  --border: #ecebf3;
+  --text: #1b1b2f;
+  --muted: #5b5b6e;
+  --accent: #6d5bf6;
+  --accent-hover: #5a48e8;
+  --accent-text: #5b48e6;
+  --accent-soft: #f1eeff;
+  --nav: #ffffff;
+  --nav-text: #5b5b6e;
+  --nav-active: #5b48e6;
+  --nav-shadow: 0 10px 30px rgb(40 30 90 / 0.12);
+  --focus: #6d5bf6;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px rgb(40 30 90 / 0.06);
+  --bone-base: #eeedf5;
+  --bone-highlight: #f8f7fc;
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #0e0d17;
+  --surface: #17162a;
+  --surface-2: #1f1d36;
+  --border: #2c2a47;
+  --text: #ecebf7;
+  --muted: #a6a4c0;
+  --accent: #6d5bf6;
+  --accent-hover: #7e6ef8;
+  --accent-text: #b3a8ff;
+  --accent-soft: #2a2350;
+  --nav: #1c1b2e;
+  --nav-text: #b4b4c8;
+  --nav-active: #ffffff;
+  --nav-shadow: 0 10px 30px rgb(0 0 0 / 0.4);
+  --focus: #b3a8ff;
+  --shadow: none;
+  --bone-base: rgba(255, 255, 255, 0.06);
+  --bone-highlight: rgba(255, 255, 255, 0.12);
+  color-scheme: dark;
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-bg font-sans text-ink antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+}
+
+/* Batang progres bergaris (statis) */
+.bar-stripes {
+  background-color: var(--accent);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgb(255 255 255 / 0.22) 0 5px,
+    transparent 5px 10px
+  );
+}
+
+/* ===== Transisi wipe skeleton -> konten (View Transitions API) ===== */
+@property --wipe {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: -100%;
+}
+/* Root: tanpa crossfade bawaan. Animasi ganti tema (lingkaran) dijalankan dari ThemeToggle. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-group(page-content) {
+  border-radius: 24px;
+  overflow: hidden;
+  animation: none;
+  z-index: 1;
+}
+
+/* Kerangka aplikasi (navigasi bawah, header, sidebar) diberi lapisan transisi sendiri
+   di atas konten, supaya tidak tertutup / tampak "refresh" saat wipe skeleton berjalan. */
+.vt-bottom-nav { view-transition-name: bottom-nav; }
+.vt-mobile-header { view-transition-name: mobile-header; }
+.vt-topbar { view-transition-name: topbar; }
+.vt-sidebar { view-transition-name: sidebar; }
+::view-transition-group(bottom-nav),
+::view-transition-group(mobile-header),
+::view-transition-group(topbar),
+::view-transition-group(sidebar) {
+  animation: none;
+  z-index: 5;
+}
+::view-transition-old(bottom-nav),
+::view-transition-new(bottom-nav),
+::view-transition-old(mobile-header),
+::view-transition-new(mobile-header),
+::view-transition-old(topbar),
+::view-transition-new(topbar),
+::view-transition-old(sidebar),
+::view-transition-new(sidebar) {
+  animation: none;
+}
+::view-transition-old(bottom-nav),
+::view-transition-old(mobile-header),
+::view-transition-old(topbar),
+::view-transition-old(sidebar) {
+  display: none;
+}
+/* Saat ganti tema, kerangka ikut terbuka bersama lingkaran (tanpa lapisan sendiri). */
+html.theme-switching .vt-bottom-nav,
+html.theme-switching .vt-mobile-header,
+html.theme-switching .vt-topbar,
+html.theme-switching .vt-sidebar {
+  view-transition-name: none;
+}
+::view-transition-image-pair(page-content) {
+  mix-blend-mode: normal;
+}
+::view-transition-new(page-content) {
+  animation: none;
+}
+::view-transition-old(page-content) {
+  animation: none;
+  z-index: 2;
+  mask-image: linear-gradient(to right, black var(--wipe), transparent calc(var(--wipe) + 100%));
+}
